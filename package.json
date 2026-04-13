@@ -1,0 +1,10 @@
+{
+  "name": "sheet-agent",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "dotenv": "^17.4.1",
+    "googleapis": "^171.4.0"
+  }
+}

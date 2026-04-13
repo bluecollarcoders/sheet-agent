@@ -1,0 +1,5 @@
+{
+    "default": "YOUR_GOOGLE_SHEET_ID_HERE",
+    "leads": "ANOTHER_SHEET_ID_FOR_LEADS",
+    "interviews": "SHEET_ID_FOR_INTERVIEW_TRACKING"
+}

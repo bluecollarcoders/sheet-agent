@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+node "$HOME/sheet-agent/tools/sheets.js" update "$@"
