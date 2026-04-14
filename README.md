@@ -67,31 +67,46 @@ node tools/sheets.js read default 'Sheet1!A1:H10'
 node tools/sheets.js append default '{"Company": "Acme", "Role": "Engineer"}'
 ```
 
-### MCP Server Integration (Phase 1)
+### MCP Server Integration (Claude Desktop)
+
+The MCP server automatically starts when needed and integrates with Claude Desktop:
 
 ```bash
-# Start MCP server
-node mcp-server/server.js
+# Configure Claude Desktop (claude_desktop_config.json)
+{
+  "mcpServers": {
+    "sheet-agent": {
+      "command": "/Users/YOUR_USERNAME/.nvm/versions/node/v22.20.0/bin/node",
+      "args": ["/Users/YOUR_USERNAME/sheet-agent/mcp-server/server.js"]
+    }
+  }
+}
 
-# AI assistants can then call:
-# "I just applied to Owner for the full stack developer position. The website is owner.com"
+# Then in Claude Desktop, simply say:
+# "I just applied to Anthropic for AI Safety Engineer position"
+# The system will automatically extract, check duplicates, and update your sheet!
 ```
 
 ## Features
 
-### Current (Base Implementation)
-- ✅ AI-powered job data extraction using Gemini 2.5 Flash
-- ✅ Google Sheets API integration with flexible operations
-- ✅ Command-line interface with executable scripts
-- ✅ Environment configuration with credential management
-- ✅ Predefined job tracker schema with standard columns
+### Core Features (Production Ready)
+- ✅ **Multi-Agent Intelligence**: Two specialized AI agents (extraction + duplicate detection)
+- ✅ **Claude Desktop Integration**: Full MCP protocol support for seamless AI assistant access
+- ✅ **Smart Duplicate Prevention**: Conservative algorithm prevents embarrassing repeat applications
+- ✅ **Google Sheets Backend**: Real-time updates with enhanced job tracking schema
+- ✅ **Natural Language Processing**: Convert casual descriptions into structured data
+- ✅ **Auto-Start Architecture**: MCP server management with process detection and recovery
+- ✅ **Cross-Platform Compatibility**: Node.js environment resolution and ES module support
 
-### Phase 1 MVP (In Development)
-- 🚧 Multi-agent pipeline (extraction + duplicate detection)
-- 🚧 MCP server for AI assistant integration
-- 🚧 Conservative duplicate detection with confidence scoring
-- 🚧 Enhanced data schema with status tracking
-- 🚧 Hybrid response format (JSON + human messages)
+### Phase 1 MVP (✅ Completed)
+- ✅ Multi-agent pipeline (extraction + duplicate detection)
+- ✅ MCP server for AI assistant integration
+- ✅ Conservative duplicate detection with confidence scoring
+- ✅ Enhanced data schema with status tracking
+- ✅ Hybrid response format (JSON + human messages)
+- ✅ Claude Desktop integration via MCP protocol
+- ✅ Auto-start process management
+- ✅ Cross-platform Node.js environment compatibility
 
 ### Phase 2 Roadmap
 - 📋 Advanced status workflow management
@@ -115,17 +130,23 @@ Google Sheets API
 Job Tracker Spreadsheet
 ```
 
-### Phase 1 Multi-Agent Pipeline
+### Production Multi-Agent Pipeline
 ```
-Natural Language Input
+Claude Desktop / Natural Language Input
     ↓
-Agent 1: Extraction Specialist
+MCP Protocol (JSON-RPC)
     ↓
-Agent 2: Duplicate Detective
+Auto-Start Process Manager
     ↓
-MCP Server Integration
-    ↓
-Google Sheets Update
+┌─────────────────────────────────┐
+│ Agent 1: Extraction Specialist │ → Extract company, role, date, status
+└─────────┬───────────────────────┘
+          ↓
+┌─────────────────────────────────┐
+│ Agent 2: Duplicate Detective    │ → Compare with existing applications
+└─────────┬───────────────────────┘
+          ↓
+Google Sheets API Update + Response to Claude
 ```
 
 ## Data Schema

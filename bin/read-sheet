@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-node "$HOME/sheet-agent/tools/sheets.js" read "$@"
+/Users/cmatteis/.nvm/versions/node/v22.20.0/bin/node "$HOME/sheet-agent/tools/sheets.js" read "$@"

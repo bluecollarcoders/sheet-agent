@@ -2,6 +2,7 @@ import { MultiOrchestratorAgent } from "./multi-agent-orchestrator.js";
 import { execFile } from "node:child_process";
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ProcessManager } from "./utils/process-manager.js";
 import dotenv from 'dotenv';
 import fs from 'node:fs';
 
@@ -15,14 +16,31 @@ if (fs.existsSync(envPath)) {
 const GOOGLE_AI_KEY = process.env.GOOGLE_AI_KEY;
 const orchestrator = new MultiOrchestratorAgent(GOOGLE_AI_KEY);
 
+async function ensureMCPServerRunning() {
+  const isRunning = await ProcessManager.isProcessRunning("mcp-server");
+
+  const serverPath = path.resolve(__dirname, '../mcp-server/server.js');
+  
+  if (!isRunning) {
+    console.log("🚀 Starting MCP server...");
+    await ProcessManager.startMCPServer(`node ${serverPath}`);
+    await ProcessManager.waitForServer("mcp-server");
+    console.log("✅ MCP server ready!");
+  } else {
+    console.log("✅ MCP server already running!");
+  }
+}
+
 async function run() {
+
+  await ensureMCPServerRunning();
 
   const userInput = process.argv.slice(2).join(" ");
   if (!userInput) return console.error("Please provide job details.");
 
   try {
     const result = await orchestrator.process(userInput);
-    
+
     console.log("🤖 Multi-Agent Result:");
     console.log(JSON.stringify(result, null, 2));
 

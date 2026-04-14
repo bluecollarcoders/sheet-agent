@@ -1,6 +1,11 @@
 import { ExtractionAgent } from "./agents/extraction-agent.js";
 import { DuplicateAgent } from "./agents/duplication-agent.js";
 import { execFile } from "node:child_process";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const readSheetPath = path.resolve(__dirname, "../bin/read-sheet");
 
 class MultiOrchestratorAgent {
     constructor(apiKey) {
@@ -11,7 +16,7 @@ class MultiOrchestratorAgent {
 
     async readExistingJobs() {
         return new Promise((resolve, reject) => {
-           execFile("read-sheet", ["default", "Sheet1!A:Z"], (error, stdout, stderr) => {
+           execFile(readSheetPath, ["default", "Sheet1!A:Z"], (error, stdout, stderr) => {
             if (error) {
                 reject(error);
                 return;

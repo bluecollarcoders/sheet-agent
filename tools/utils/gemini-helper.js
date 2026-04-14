@@ -1,6 +1,6 @@
 export class GeminiHelper {
     static async callWithRetry(model, prompt, maxRetries = 3) {
-              for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
           const result = await model.generateContent(prompt);
           return result;

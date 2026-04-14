@@ -24,6 +24,12 @@ Phase Two transforms the sheet-agent from a simple extraction tool into an intel
 - Role-based prompting for specialized tasks
 - Enhanced data enrichment through agent collaboration
 
+### 4. Interactive Data Quality Enhancement
+- Detect missing critical information during extraction
+- Prompt user for additional details when appropriate
+- Optional fields: recruiter contact, job posting URL, interview details
+- Smart suggestions based on incomplete data patterns
+
 ## Multi-Agent Architecture
 
 ```
@@ -418,3 +424,139 @@ Cost with Gemini Flash free tier: $0.00
 - Industry-specific strategy customization
 - Automated outreach message generation
 - Interview preparation based on company/role analysis
+
+## Interactive Data Quality Enhancement (Future Feature)
+
+### Overview
+Add intelligent prompting to gather missing information during job application processing, improving data completeness and follow-up effectiveness.
+
+### User Experience Flow
+```bash
+add-job "Applied to Apple for iOS Developer"
+
+🤖 Processing job application...
+✅ Extracted: Apple - iOS Developer position
+
+⚠️  Missing Information Detected:
+   • No recruiter contact mentioned
+   • No job posting URL provided
+   • No interview details
+
+💡 Would you like to add additional details?
+
+🔍 Add recruiter contact? [y/N]: y
+   → Enter recruiter name/email: Sarah Johnson - sarah.j@apple.com
+
+🔗 Add job posting URL? [y/N]: y
+   → Enter job posting URL: https://jobs.apple.com/ios-dev-12345
+
+📅 Any interview details? [y/N]: n
+
+✅ Enhanced job application saved with additional context!
+```
+
+### Implementation Strategy
+
+#### 1. Data Quality Analysis Agent
+```javascript
+class DataQualityAgent {
+  analyzeCompleteness(jobData) {
+    const missing = [];
+    if (!jobData["Contacted recruiter?"] || jobData["Contacted recruiter?"] === "No") {
+      missing.push("recruiter_contact");
+    }
+    if (!jobData["Role link"]) {
+      missing.push("job_posting_url");
+    }
+    if (!jobData["Notes"] || jobData["Notes"].length < 20) {
+      missing.push("additional_context");
+    }
+    return missing;
+  }
+}
+```
+
+#### 2. Interactive Prompt System
+```javascript
+import readline from 'readline/promises';
+
+class InteractiveEnhancer {
+  async promptForMissingData(missingFields, jobData) {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    for (const field of missingFields) {
+      const shouldAdd = await rl.question(`Add ${field}? [y/N]: `);
+      if (shouldAdd.toLowerCase() === 'y') {
+        const value = await rl.question(`Enter ${field}: `);
+        this.enhanceJobData(jobData, field, value);
+      }
+    }
+
+    rl.close();
+    return jobData;
+  }
+}
+```
+
+#### 3. Enhanced Orchestrator Integration
+```javascript
+// In multi-agent-orchestrator.js
+async process(naturalLanguageInput, interactive = false) {
+  const extractionResult = await this.extractionAgent.process(naturalLanguageInput);
+
+  if (interactive) {
+    const missingFields = this.dataQualityAgent.analyzeCompleteness(extractionResult.data);
+    if (missingFields.length > 0) {
+      extractionResult.data = await this.interactiveEnhancer.promptForMissingData(
+        missingFields,
+        extractionResult.data
+      );
+    }
+  }
+
+  // Continue with duplicate detection...
+}
+```
+
+### CLI Integration
+```javascript
+// Enhanced ai-add-job.js with interactive flag
+async function run() {
+  const args = process.argv.slice(2);
+  const interactiveMode = args.includes('--interactive') || args.includes('-i');
+  const userInput = args.filter(arg => !arg.startsWith('-')).join(' ');
+
+  const result = await orchestrator.process(userInput, interactiveMode);
+  // Handle result...
+}
+```
+
+### Usage Examples
+```bash
+# Standard mode (current behavior)
+add-job "Applied to Netflix for ML Engineer"
+
+# Interactive mode with prompts
+add-job --interactive "Applied to Netflix for ML Engineer"
+add-job -i "Applied to Netflix for ML Engineer"
+
+# Batch mode with predefined data
+add-job "Applied to Netflix for ML Engineer" --recruiter "jane@netflix.com" --url "netflix.com/jobs/ml-123"
+```
+
+### Benefits
+- ✅ **Improved data quality** - more complete job tracking records
+- ✅ **Better follow-ups** - contact information readily available
+- ✅ **Optional enhancement** - doesn't disrupt existing workflow
+- ✅ **User control** - can skip prompts or use non-interactive mode
+- ✅ **Richer context** - better insights and tracking over time
+
+### Technical Considerations
+- **Performance**: Interactive mode adds 10-30 seconds depending on user input
+- **Automation**: Non-interactive mode preserves scripting capabilities
+- **Validation**: Input validation and sanitization for enhanced fields
+- **Persistence**: Store enhancement preferences per user
+- **Rollback**: Option to edit/correct enhanced data post-submission
