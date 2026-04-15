@@ -238,17 +238,39 @@ node tools/ai-add-job.js "job description"
 ### Project Structure
 ```
 sheet-agent/
-├── bin/                    # Executable CLI scripts
-├── tools/                  # Core Node.js implementation
-│   ├── sheets.js          # Google Sheets operations
-│   ├── ai-add-job.js      # AI extraction pipeline
-│   └── .env               # Local environment variables
-├── config/                # Configuration files
-│   ├── sheets.json        # Sheet ID mappings (gitignored)
-│   └── sheets.json.example # Configuration template
-├── secrets/               # Credentials (gitignored)
-├── mcp-server/           # MCP server implementation (Phase 1)
-└── docs/                 # Implementation plans
+├── bin/                              # Executable CLI scripts
+│   ├── add-job                      # Enhanced multi-agent job processing
+│   ├── append-row                   # Direct sheet row append
+│   ├── read-sheet                   # Direct sheet data read
+│   ├── setup-job-tracker          # Initialize job tracker headers
+│   └── update-cell                 # Direct cell updates
+├── tools/                          # Core Node.js implementation
+│   ├── agents/                     # Multi-agent AI system
+│   │   ├── extraction-agent.js     # Job data extraction specialist
+│   │   └── duplication-agent.js    # Duplicate detection expert
+│   ├── schemas/                    # Data validation schemas
+│   │   └── mvp-job-schema.js      # Enhanced job tracker schema
+│   ├── utils/                      # Shared utilities
+│   │   ├── gemini-helper.js       # AI API retry logic
+│   │   └── process-manager.js     # MCP server auto-start
+│   ├── multi-agent-orchestrator.js # Agent coordination pipeline
+│   ├── ai-add-job.js              # CLI job processing entry
+│   └── sheets.js                  # Google Sheets API operations
+├── mcp-server/                     # MCP Protocol Integration
+│   ├── server.js                  # Claude Desktop integration
+│   ├── package.json               # MCP server dependencies
+│   └── package-lock.json          # Dependency lock file
+├── config/                        # Configuration files
+│   └── sheets.json               # Sheet ID mappings (gitignored)
+├── secrets/                       # Credentials (gitignored)
+│   └── google-sheets.json        # Service account credentials
+├── docs/                          # Implementation documentation
+│   ├── IMPLEMENTATION_PHASE_ONE.md
+│   └── IMPLEMENTATION_PHASE_TWO.md
+├── CLAUDE.md                      # AI development guide
+├── README.md                      # Project documentation
+├── package.json                   # Project dependencies
+└── package-lock.json             # Dependency lock file
 ```
 
 ### Running Tests
