@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-/Users/cmatteis/.nvm/versions/node/v22.20.0/bin/node "$HOME/sheet-agent/tools/sheets.js" read "$@"
+cd /Users/cmatteis/sheet-agent
+/Users/cmatteis/.nvm/versions/node/v22.20.0/bin/node tools/sheets.js read "$@"

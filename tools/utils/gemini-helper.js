@@ -12,7 +12,7 @@ export class GeminiHelper {
 
           if (isRetryableError && attempt < maxRetries) {
             const waitTime = Math.pow(2, attempt) * 1000; // 2s, 4s, 8s
-            console.log(`⏳ Gemini API busy, retrying in ${waitTime/1000}s... (${attempt}/${maxRetries})`);
+            console.error(`⏳ Gemini API busy, retrying in ${waitTime/1000}s... (${attempt}/${maxRetries})`);
             await new Promise(resolve => setTimeout(resolve, waitTime));
           } else {
             throw error; // Non-retryable or final attempt

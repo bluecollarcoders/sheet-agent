@@ -1,11 +1,14 @@
 import { ExtractionAgent } from "./agents/extraction-agent.js";
 import { DuplicateAgent } from "./agents/duplication-agent.js";
-import { execFile } from "node:child_process";
+import { execFile as execFilePromise } from "node:child_process";
+import { promisify } from "node:util";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const readSheetPath = path.resolve(__dirname, "../bin/read-sheet");
+const appendRowPath = path.resolve(__dirname, "../bin/append-row");
+const execFileCb = promisify(execFilePromise);
 
 class MultiOrchestratorAgent {
     constructor(apiKey) {
@@ -15,21 +18,34 @@ class MultiOrchestratorAgent {
     }
 
     async readExistingJobs() {
-        return new Promise((resolve, reject) => {
-           execFile(readSheetPath, ["default", "Sheet1!A:Z"], (error, stdout, stderr) => {
-            if (error) {
-                reject(error);
-                return;
-            }
-            try {
-                const jobs = JSON.parse(stdout);
-                resolve(jobs);
-            } catch (parseError) {
-                reject(parseError);
-            }
-           });
-        })
+
+       try {
+        const { stdout, stderr } = await execFileCb(readSheetPath, ["default", "Sheet1!A:Z"]);
+
+        if (stderr) console.warn("Script Warning:", stderr);
+
+        return JSON.parse(stdout);
+       } catch (error) {
+        console.error("Failed to read jobs:", error.message);
+        throw error;
         
+       }
+        
+    }
+
+    async appendNewJob(newJob = []) {
+
+        const jobData = JSON.stringify(newJob);
+
+        try {
+            const { stdout, stderr } = await execFileCb(appendRowPath, ["default", jobData]);
+            if (stderr) console.warn("Write Warning:", stderr);
+
+            return JSON.parse(stdout);
+        } catch (error) {
+            console.error("Failed to read jobs:", error.message);
+            throw error;
+        }
     }
 
     async process(naturalLanguageInput) {
@@ -46,6 +62,10 @@ class MultiOrchestratorAgent {
         const newJob = extractedResult.data;
 
         const duplicateResult= await this.duplicateAgent.checkDuplicates(newJob, existingJobs);
+
+        if (!duplicateResult.data?.isDuplicate) {
+            await this.appendNewJob(newJob);
+        }
 
         return {
             success: true,
