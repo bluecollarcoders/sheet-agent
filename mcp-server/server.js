@@ -11,6 +11,8 @@ const server = new McpServer({
     version: "1.0.0",
 });
 
+const apiKey = process.env.GOOGLE_AI_KEY;
+
 // Register tools using high-level API.
 server.registerTool(
     "process_job_application",
@@ -21,7 +23,6 @@ server.registerTool(
         })
     },
     async ({ description }) => {
-        const apiKey = process.env.GOOGLE_AI_KEY;
         if (!apiKey) {
             return {
                 content: [{type: "text", text: "Error: GOOGLE_AI_KEY not set" }],
@@ -61,9 +62,21 @@ server.registerTool(
         })
     },
     async({ limit }) => {
-        return{
-            content: [{ type: "text", text: `📋 Feature coming soon for last ${limit} jobs.` }]
-        };
+        const orchestrator = new MultiOrchestratorAgent(apiKey);
+        const result = await orchestrator.getHistory(limit);
+
+        try {
+            if (!result.success) throw new Error(result.error);
+            return {
+            content: [{ type: "text", text: `Found ${result.data.length} recent applications:\n${JSON.stringify(result.data, null, 2)}` }]
+        };  
+        } catch (error) {
+            return {
+                content: [{type: "text", text: `Error fetching history: ${error.message}`}],
+                isError: true
+            };
+        }
+
     }
 );
 

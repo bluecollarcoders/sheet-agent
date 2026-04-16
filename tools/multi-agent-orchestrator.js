@@ -43,8 +43,22 @@ class MultiOrchestratorAgent {
 
             return JSON.parse(stdout);
         } catch (error) {
-            console.error("Failed to read jobs:", error.message);
+            console.error("Failed to append jobs:", error.message);
             throw error;
+        }
+    }
+
+    async getHistory(limit = 10) {
+        try {
+            const jobs = await this.readExistingJobs();
+
+            return {
+                success: true,
+                data: jobs.slice(-limit).reverse(),
+                count: jobs.length
+            }
+        } catch (error) {
+            return { success: false, error: error.message };
         }
     }
 
